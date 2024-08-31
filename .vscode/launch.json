@@ -1,0 +1,58 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "rtaudio",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "rtaudio (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "rtaudio (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "example",
+            "cwd": "example",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "example (profile mode)",
+            "cwd": "example",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "example (release mode)",
+            "cwd": "example",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+
+        {
+            "name": "Debug Native",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\example\\build\\windows\\x64\\runner\\Debug\\rtaudio_example.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}\\example\\build\\windows\\x64\\runner\\Debug",
+            "environment": [],
+            "console": "integratedTerminal",
+            "preLaunchTask": "Flutter: Build Windows"
+        }
+    ]
+}

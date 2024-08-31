@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "*.ejs": "html",
+        "*.ino": "cpp",
+        "pthread.h": "c",
+        "rtaudio.h": "c",
+        "miniaudio.h": "c",
+        "locale": "c",
+        "xlocale": "c",
+        "xlocmes": "c",
+        "xlocmon": "c",
+        "xlocnum": "c",
+        "xloctime": "c"
+    }
+}
