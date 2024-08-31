@@ -106,8 +106,6 @@ class RtAudio {
       _bindings.rta_get_device_count(ptr);
       return ptr.value;
     });
-
-    print("[RTA] Device count: $deviceCount");
     
     ffi.Pointer<rta_audio_device_t> devicePtr = calloc<rta_audio_device_t>(deviceCount);
     if (_bindings.rta_get_devices(devicePtr) != rta_error.RTA_SUCCESS) {
