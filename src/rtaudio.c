@@ -225,6 +225,7 @@ rta_error rta_context_create(
     config.playback.channels = contextConfig->channels;
     config.sampleRate = contextConfig->sampleRate;
     config.dataCallback = _rta_data_callback;
+    config.performanceProfile = ma_performance_profile_low_latency;
     config.pUserData = context;
 
     rta_audio_callback_datasource_init(&context->dataSource);
@@ -257,6 +258,7 @@ rta_error rta_context_create_aaudio(const rta_audio_context_config_t *contextCon
     config.playback.channels = contextConfig->channels;
     config.sampleRate = contextConfig->sampleRate;
     config.dataCallback = _rta_data_callback;
+    config.performanceProfile = ma_performance_profile_low_latency;
     config.pUserData = context;
 
     rta_audio_callback_datasource_init(&context->dataSource);
@@ -278,6 +280,6 @@ rta_error rta_context_create_aaudio(const rta_audio_context_config_t *contextCon
 void rta_context_destroy(rta_audio_context_t *context)
 {
     ma_device_stop(&context->device);
-    ma_device_uninit(&context->device);
     rta_audio_callback_datasource_uninit(&context->dataSource);
+    ma_device_uninit(&context->device);
 }

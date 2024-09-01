@@ -27,67 +27,67 @@ class RtaudioBindings {
           lookup)
       : _lookup = lookup;
 
-  int rta_get_device(
+  rta_error rta_get_device(
     int id,
     ffi.Pointer<rta_audio_device_t> info,
   ) {
-    return _rta_get_device(
+    return rta_error.fromValue(_rta_get_device(
       id,
       info,
-    );
+    ));
   }
 
   late final _rta_get_devicePtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int32 Function(
+          ffi.UnsignedInt Function(
               ffi.Int, ffi.Pointer<rta_audio_device_t>)>>('rta_get_device');
   late final _rta_get_device = _rta_get_devicePtr
       .asFunction<int Function(int, ffi.Pointer<rta_audio_device_t>)>();
 
-  int rta_get_device_count(
+  rta_error rta_get_device_count(
     ffi.Pointer<ffi.Int> count,
   ) {
-    return _rta_get_device_count(
+    return rta_error.fromValue(_rta_get_device_count(
       count,
-    );
+    ));
   }
 
-  late final _rta_get_device_countPtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<ffi.Int>)>>(
-          'rta_get_device_count');
+  late final _rta_get_device_countPtr = _lookup<
+          ffi.NativeFunction<ffi.UnsignedInt Function(ffi.Pointer<ffi.Int>)>>(
+      'rta_get_device_count');
   late final _rta_get_device_count =
       _rta_get_device_countPtr.asFunction<int Function(ffi.Pointer<ffi.Int>)>();
 
-  int rta_get_devices(
+  rta_error rta_get_devices(
     ffi.Pointer<rta_audio_device_t> list,
   ) {
-    return _rta_get_devices(
+    return rta_error.fromValue(_rta_get_devices(
       list,
-    );
+    ));
   }
 
   late final _rta_get_devicesPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Int32 Function(ffi.Pointer<rta_audio_device_t>)>>(
-      'rta_get_devices');
+      ffi.NativeFunction<
+          ffi.UnsignedInt Function(
+              ffi.Pointer<rta_audio_device_t>)>>('rta_get_devices');
   late final _rta_get_devices = _rta_get_devicesPtr
       .asFunction<int Function(ffi.Pointer<rta_audio_device_t>)>();
 
-  int rta_context_create(
+  rta_error rta_context_create(
     ffi.Pointer<rta_audio_context_config_t> contextConfig,
     ffi.Pointer<rta_audio_device_t> device,
     ffi.Pointer<rta_audio_context_t> context,
   ) {
-    return _rta_context_create(
+    return rta_error.fromValue(_rta_context_create(
       contextConfig,
       device,
       context,
-    );
+    ));
   }
 
   late final _rta_context_createPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int32 Function(
+          ffi.UnsignedInt Function(
               ffi.Pointer<rta_audio_context_config_t>,
               ffi.Pointer<rta_audio_device_t>,
               ffi.Pointer<rta_audio_context_t>)>>('rta_context_create');
@@ -95,21 +95,23 @@ class RtaudioBindings {
       int Function(ffi.Pointer<rta_audio_context_config_t>,
           ffi.Pointer<rta_audio_device_t>, ffi.Pointer<rta_audio_context_t>)>();
 
-  int rta_context_create_aaudio(
+  rta_error rta_context_create_aaudio(
     ffi.Pointer<rta_audio_context_config_t> contextConfig,
     int deviceID,
     ffi.Pointer<rta_audio_context_t> context,
   ) {
-    return _rta_context_create_aaudio(
+    return rta_error.fromValue(_rta_context_create_aaudio(
       contextConfig,
       deviceID,
       context,
-    );
+    ));
   }
 
   late final _rta_context_create_aaudioPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int32 Function(ffi.Pointer<rta_audio_context_config_t>, ffi.Int,
+          ffi.UnsignedInt Function(
+              ffi.Pointer<rta_audio_context_config_t>,
+              ffi.Int,
               ffi.Pointer<rta_audio_context_t>)>>('rta_context_create_aaudio');
   late final _rta_context_create_aaudio =
       _rta_context_create_aaudioPtr.asFunction<
@@ -145,13 +147,26 @@ class RtaudioBindings {
   set g_ContextInitialized(int value) => _g_ContextInitialized.value = value;
 }
 
-abstract class rta_error {
-  static const int RTA_SUCCESS = 0;
-  static const int RTA_ERROR = 1;
-  static const int RTA_FAILED_TO_INITIALIZE_CONTEXT = 2;
-  static const int RTA_FAILED_TO_GET_DEVICES = 3;
-  static const int RTA_FAILED_TO_INIT_DEVICE = 4;
-  static const int RTA_INVALID = 5;
+enum rta_error {
+  RTA_SUCCESS(0),
+  RTA_ERROR(1),
+  RTA_FAILED_TO_INITIALIZE_CONTEXT(2),
+  RTA_FAILED_TO_GET_DEVICES(3),
+  RTA_FAILED_TO_INIT_DEVICE(4),
+  RTA_INVALID(5);
+
+  final int value;
+  const rta_error(this.value);
+
+  static rta_error fromValue(int value) => switch (value) {
+        0 => RTA_SUCCESS,
+        1 => RTA_ERROR,
+        2 => RTA_FAILED_TO_INITIALIZE_CONTEXT,
+        3 => RTA_FAILED_TO_GET_DEVICES,
+        4 => RTA_FAILED_TO_INIT_DEVICE,
+        5 => RTA_INVALID,
+        _ => throw ArgumentError("Unknown value for rta_error: $value"),
+      };
 }
 
 /// MINIAUDIO datasource
@@ -201,7 +216,7 @@ final class ma_data_source_base extends ffi.Struct {
 final class ma_data_source_vtable extends ffi.Struct {
   external ffi.Pointer<
       ffi.NativeFunction<
-          ffi.Int32 Function(
+          ffi.Int Function(
               ffi.Pointer<ma_data_source> pDataSource,
               ffi.Pointer<ffi.Void> pFramesOut,
               ma_uint64 frameCount,
@@ -209,14 +224,14 @@ final class ma_data_source_vtable extends ffi.Struct {
 
   external ffi.Pointer<
       ffi.NativeFunction<
-          ffi.Int32 Function(ffi.Pointer<ma_data_source> pDataSource,
+          ffi.Int Function(ffi.Pointer<ma_data_source> pDataSource,
               ma_uint64 frameIndex)>> onSeek;
 
   external ffi.Pointer<
       ffi.NativeFunction<
-          ffi.Int32 Function(
+          ffi.Int Function(
               ffi.Pointer<ma_data_source> pDataSource,
-              ffi.Pointer<ffi.Int32> pFormat,
+              ffi.Pointer<ffi.UnsignedInt> pFormat,
               ffi.Pointer<ma_uint32> pChannels,
               ffi.Pointer<ma_uint32> pSampleRate,
               ffi.Pointer<ma_channel> pChannelMap,
@@ -224,105 +239,183 @@ final class ma_data_source_vtable extends ffi.Struct {
 
   external ffi.Pointer<
       ffi.NativeFunction<
-          ffi.Int32 Function(ffi.Pointer<ma_data_source> pDataSource,
+          ffi.Int Function(ffi.Pointer<ma_data_source> pDataSource,
               ffi.Pointer<ma_uint64> pCursor)>> onGetCursor;
 
   external ffi.Pointer<
       ffi.NativeFunction<
-          ffi.Int32 Function(ffi.Pointer<ma_data_source> pDataSource,
+          ffi.Int Function(ffi.Pointer<ma_data_source> pDataSource,
               ffi.Pointer<ma_uint64> pLength)>> onGetLength;
 
   external ffi.Pointer<
       ffi.NativeFunction<
-          ffi.Int32 Function(ffi.Pointer<ma_data_source> pDataSource,
+          ffi.Int Function(ffi.Pointer<ma_data_source> pDataSource,
               ma_bool32 isLooping)>> onSetLooping;
 
   @ma_uint32()
   external int flags;
 }
 
-abstract class ma_result {
-  static const int MA_SUCCESS = 0;
+enum ma_result {
+  MA_SUCCESS(0),
 
   /// A generic error.
-  static const int MA_ERROR = -1;
-  static const int MA_INVALID_ARGS = -2;
-  static const int MA_INVALID_OPERATION = -3;
-  static const int MA_OUT_OF_MEMORY = -4;
-  static const int MA_OUT_OF_RANGE = -5;
-  static const int MA_ACCESS_DENIED = -6;
-  static const int MA_DOES_NOT_EXIST = -7;
-  static const int MA_ALREADY_EXISTS = -8;
-  static const int MA_TOO_MANY_OPEN_FILES = -9;
-  static const int MA_INVALID_FILE = -10;
-  static const int MA_TOO_BIG = -11;
-  static const int MA_PATH_TOO_LONG = -12;
-  static const int MA_NAME_TOO_LONG = -13;
-  static const int MA_NOT_DIRECTORY = -14;
-  static const int MA_IS_DIRECTORY = -15;
-  static const int MA_DIRECTORY_NOT_EMPTY = -16;
-  static const int MA_AT_END = -17;
-  static const int MA_NO_SPACE = -18;
-  static const int MA_BUSY = -19;
-  static const int MA_IO_ERROR = -20;
-  static const int MA_INTERRUPT = -21;
-  static const int MA_UNAVAILABLE = -22;
-  static const int MA_ALREADY_IN_USE = -23;
-  static const int MA_BAD_ADDRESS = -24;
-  static const int MA_BAD_SEEK = -25;
-  static const int MA_BAD_PIPE = -26;
-  static const int MA_DEADLOCK = -27;
-  static const int MA_TOO_MANY_LINKS = -28;
-  static const int MA_NOT_IMPLEMENTED = -29;
-  static const int MA_NO_MESSAGE = -30;
-  static const int MA_BAD_MESSAGE = -31;
-  static const int MA_NO_DATA_AVAILABLE = -32;
-  static const int MA_INVALID_DATA = -33;
-  static const int MA_TIMEOUT = -34;
-  static const int MA_NO_NETWORK = -35;
-  static const int MA_NOT_UNIQUE = -36;
-  static const int MA_NOT_SOCKET = -37;
-  static const int MA_NO_ADDRESS = -38;
-  static const int MA_BAD_PROTOCOL = -39;
-  static const int MA_PROTOCOL_UNAVAILABLE = -40;
-  static const int MA_PROTOCOL_NOT_SUPPORTED = -41;
-  static const int MA_PROTOCOL_FAMILY_NOT_SUPPORTED = -42;
-  static const int MA_ADDRESS_FAMILY_NOT_SUPPORTED = -43;
-  static const int MA_SOCKET_NOT_SUPPORTED = -44;
-  static const int MA_CONNECTION_RESET = -45;
-  static const int MA_ALREADY_CONNECTED = -46;
-  static const int MA_NOT_CONNECTED = -47;
-  static const int MA_CONNECTION_REFUSED = -48;
-  static const int MA_NO_HOST = -49;
-  static const int MA_IN_PROGRESS = -50;
-  static const int MA_CANCELLED = -51;
-  static const int MA_MEMORY_ALREADY_MAPPED = -52;
+  MA_ERROR(-1),
+  MA_INVALID_ARGS(-2),
+  MA_INVALID_OPERATION(-3),
+  MA_OUT_OF_MEMORY(-4),
+  MA_OUT_OF_RANGE(-5),
+  MA_ACCESS_DENIED(-6),
+  MA_DOES_NOT_EXIST(-7),
+  MA_ALREADY_EXISTS(-8),
+  MA_TOO_MANY_OPEN_FILES(-9),
+  MA_INVALID_FILE(-10),
+  MA_TOO_BIG(-11),
+  MA_PATH_TOO_LONG(-12),
+  MA_NAME_TOO_LONG(-13),
+  MA_NOT_DIRECTORY(-14),
+  MA_IS_DIRECTORY(-15),
+  MA_DIRECTORY_NOT_EMPTY(-16),
+  MA_AT_END(-17),
+  MA_NO_SPACE(-18),
+  MA_BUSY(-19),
+  MA_IO_ERROR(-20),
+  MA_INTERRUPT(-21),
+  MA_UNAVAILABLE(-22),
+  MA_ALREADY_IN_USE(-23),
+  MA_BAD_ADDRESS(-24),
+  MA_BAD_SEEK(-25),
+  MA_BAD_PIPE(-26),
+  MA_DEADLOCK(-27),
+  MA_TOO_MANY_LINKS(-28),
+  MA_NOT_IMPLEMENTED(-29),
+  MA_NO_MESSAGE(-30),
+  MA_BAD_MESSAGE(-31),
+  MA_NO_DATA_AVAILABLE(-32),
+  MA_INVALID_DATA(-33),
+  MA_TIMEOUT(-34),
+  MA_NO_NETWORK(-35),
+  MA_NOT_UNIQUE(-36),
+  MA_NOT_SOCKET(-37),
+  MA_NO_ADDRESS(-38),
+  MA_BAD_PROTOCOL(-39),
+  MA_PROTOCOL_UNAVAILABLE(-40),
+  MA_PROTOCOL_NOT_SUPPORTED(-41),
+  MA_PROTOCOL_FAMILY_NOT_SUPPORTED(-42),
+  MA_ADDRESS_FAMILY_NOT_SUPPORTED(-43),
+  MA_SOCKET_NOT_SUPPORTED(-44),
+  MA_CONNECTION_RESET(-45),
+  MA_ALREADY_CONNECTED(-46),
+  MA_NOT_CONNECTED(-47),
+  MA_CONNECTION_REFUSED(-48),
+  MA_NO_HOST(-49),
+  MA_IN_PROGRESS(-50),
+  MA_CANCELLED(-51),
+  MA_MEMORY_ALREADY_MAPPED(-52),
 
   /// General non-standard errors.
-  static const int MA_CRC_MISMATCH = -100;
+  MA_CRC_MISMATCH(-100),
 
   /// General miniaudio-specific errors.
-  static const int MA_FORMAT_NOT_SUPPORTED = -200;
-  static const int MA_DEVICE_TYPE_NOT_SUPPORTED = -201;
-  static const int MA_SHARE_MODE_NOT_SUPPORTED = -202;
-  static const int MA_NO_BACKEND = -203;
-  static const int MA_NO_DEVICE = -204;
-  static const int MA_API_NOT_FOUND = -205;
-  static const int MA_INVALID_DEVICE_CONFIG = -206;
-  static const int MA_LOOP = -207;
-  static const int MA_BACKEND_NOT_ENABLED = -208;
+  MA_FORMAT_NOT_SUPPORTED(-200),
+  MA_DEVICE_TYPE_NOT_SUPPORTED(-201),
+  MA_SHARE_MODE_NOT_SUPPORTED(-202),
+  MA_NO_BACKEND(-203),
+  MA_NO_DEVICE(-204),
+  MA_API_NOT_FOUND(-205),
+  MA_INVALID_DEVICE_CONFIG(-206),
+  MA_LOOP(-207),
+  MA_BACKEND_NOT_ENABLED(-208),
 
   /// State errors.
-  static const int MA_DEVICE_NOT_INITIALIZED = -300;
-  static const int MA_DEVICE_ALREADY_INITIALIZED = -301;
-  static const int MA_DEVICE_NOT_STARTED = -302;
-  static const int MA_DEVICE_NOT_STOPPED = -303;
+  MA_DEVICE_NOT_INITIALIZED(-300),
+  MA_DEVICE_ALREADY_INITIALIZED(-301),
+  MA_DEVICE_NOT_STARTED(-302),
+  MA_DEVICE_NOT_STOPPED(-303),
 
   /// Operation errors.
-  static const int MA_FAILED_TO_INIT_BACKEND = -400;
-  static const int MA_FAILED_TO_OPEN_BACKEND_DEVICE = -401;
-  static const int MA_FAILED_TO_START_BACKEND_DEVICE = -402;
-  static const int MA_FAILED_TO_STOP_BACKEND_DEVICE = -403;
+  MA_FAILED_TO_INIT_BACKEND(-400),
+  MA_FAILED_TO_OPEN_BACKEND_DEVICE(-401),
+  MA_FAILED_TO_START_BACKEND_DEVICE(-402),
+  MA_FAILED_TO_STOP_BACKEND_DEVICE(-403);
+
+  final int value;
+  const ma_result(this.value);
+
+  static ma_result fromValue(int value) => switch (value) {
+        0 => MA_SUCCESS,
+        -1 => MA_ERROR,
+        -2 => MA_INVALID_ARGS,
+        -3 => MA_INVALID_OPERATION,
+        -4 => MA_OUT_OF_MEMORY,
+        -5 => MA_OUT_OF_RANGE,
+        -6 => MA_ACCESS_DENIED,
+        -7 => MA_DOES_NOT_EXIST,
+        -8 => MA_ALREADY_EXISTS,
+        -9 => MA_TOO_MANY_OPEN_FILES,
+        -10 => MA_INVALID_FILE,
+        -11 => MA_TOO_BIG,
+        -12 => MA_PATH_TOO_LONG,
+        -13 => MA_NAME_TOO_LONG,
+        -14 => MA_NOT_DIRECTORY,
+        -15 => MA_IS_DIRECTORY,
+        -16 => MA_DIRECTORY_NOT_EMPTY,
+        -17 => MA_AT_END,
+        -18 => MA_NO_SPACE,
+        -19 => MA_BUSY,
+        -20 => MA_IO_ERROR,
+        -21 => MA_INTERRUPT,
+        -22 => MA_UNAVAILABLE,
+        -23 => MA_ALREADY_IN_USE,
+        -24 => MA_BAD_ADDRESS,
+        -25 => MA_BAD_SEEK,
+        -26 => MA_BAD_PIPE,
+        -27 => MA_DEADLOCK,
+        -28 => MA_TOO_MANY_LINKS,
+        -29 => MA_NOT_IMPLEMENTED,
+        -30 => MA_NO_MESSAGE,
+        -31 => MA_BAD_MESSAGE,
+        -32 => MA_NO_DATA_AVAILABLE,
+        -33 => MA_INVALID_DATA,
+        -34 => MA_TIMEOUT,
+        -35 => MA_NO_NETWORK,
+        -36 => MA_NOT_UNIQUE,
+        -37 => MA_NOT_SOCKET,
+        -38 => MA_NO_ADDRESS,
+        -39 => MA_BAD_PROTOCOL,
+        -40 => MA_PROTOCOL_UNAVAILABLE,
+        -41 => MA_PROTOCOL_NOT_SUPPORTED,
+        -42 => MA_PROTOCOL_FAMILY_NOT_SUPPORTED,
+        -43 => MA_ADDRESS_FAMILY_NOT_SUPPORTED,
+        -44 => MA_SOCKET_NOT_SUPPORTED,
+        -45 => MA_CONNECTION_RESET,
+        -46 => MA_ALREADY_CONNECTED,
+        -47 => MA_NOT_CONNECTED,
+        -48 => MA_CONNECTION_REFUSED,
+        -49 => MA_NO_HOST,
+        -50 => MA_IN_PROGRESS,
+        -51 => MA_CANCELLED,
+        -52 => MA_MEMORY_ALREADY_MAPPED,
+        -100 => MA_CRC_MISMATCH,
+        -200 => MA_FORMAT_NOT_SUPPORTED,
+        -201 => MA_DEVICE_TYPE_NOT_SUPPORTED,
+        -202 => MA_SHARE_MODE_NOT_SUPPORTED,
+        -203 => MA_NO_BACKEND,
+        -204 => MA_NO_DEVICE,
+        -205 => MA_API_NOT_FOUND,
+        -206 => MA_INVALID_DEVICE_CONFIG,
+        -207 => MA_LOOP,
+        -208 => MA_BACKEND_NOT_ENABLED,
+        -300 => MA_DEVICE_NOT_INITIALIZED,
+        -301 => MA_DEVICE_ALREADY_INITIALIZED,
+        -302 => MA_DEVICE_NOT_STARTED,
+        -303 => MA_DEVICE_NOT_STOPPED,
+        -400 => MA_FAILED_TO_INIT_BACKEND,
+        -401 => MA_FAILED_TO_OPEN_BACKEND_DEVICE,
+        -402 => MA_FAILED_TO_START_BACKEND_DEVICE,
+        -403 => MA_FAILED_TO_STOP_BACKEND_DEVICE,
+        _ => throw ArgumentError("Unknown value for ma_result: $value"),
+      };
 }
 
 /// Data Source
@@ -331,19 +424,33 @@ typedef Dartma_data_source = void;
 typedef ma_uint64 = ffi.UnsignedLongLong;
 typedef Dartma_uint64 = int;
 
-abstract class ma_format {
+enum ma_format {
   /// Mainly used for indicating an error, but also used as the default for the output format for decoders.
-  static const int ma_format_unknown = 0;
-  static const int ma_format_u8 = 1;
+  ma_format_unknown(0),
+  ma_format_u8(1),
 
   /// Seems to be the most widely supported format.
-  static const int ma_format_s16 = 2;
+  ma_format_s16(2),
 
   /// Tightly packed. 3 bytes per sample.
-  static const int ma_format_s24 = 3;
-  static const int ma_format_s32 = 4;
-  static const int ma_format_f32 = 5;
-  static const int ma_format_count = 6;
+  ma_format_s24(3),
+  ma_format_s32(4),
+  ma_format_f32(5),
+  ma_format_count(6);
+
+  final int value;
+  const ma_format(this.value);
+
+  static ma_format fromValue(int value) => switch (value) {
+        0 => ma_format_unknown,
+        1 => ma_format_u8,
+        2 => ma_format_s16,
+        3 => ma_format_s24,
+        4 => ma_format_s32,
+        5 => ma_format_f32,
+        6 => ma_format_count,
+        _ => throw ArgumentError("Unknown value for ma_format: $value"),
+      };
 }
 
 typedef ma_uint32 = ffi.UnsignedInt;
@@ -472,7 +579,7 @@ final class UnnamedUnion1 extends ffi.Union {
 
 final class UnnamedStruct1 extends ffi.Struct {
   /// Sample format. If set to ma_format_unknown, all sample formats are supported.
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int format;
 
   /// If set to 0, all channels are supported.
@@ -507,7 +614,7 @@ final class rta_audio_context_t extends ffi.Struct {
 final class ma_device extends ffi.Struct {
   external ffi.Pointer<ma_context> pContext;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int type;
 
   @ma_uint32()
@@ -539,7 +646,7 @@ final class ma_device extends ffi.Struct {
   external ma_thread thread;
 
   /// This is set by the worker thread after it's finished doing a job.
-  @ffi.Int32()
+  @ffi.Int()
   external int workResult;
 
   /// When set to true, uninitializing the device will also uninitialize the context. Set to true when NULL is passed into ma_device_init().
@@ -577,7 +684,7 @@ final class ma_context extends ffi.Struct {
   external ma_backend_callbacks callbacks;
 
   /// DirectSound, ALSA, etc.
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int backend;
 
   external ffi.Pointer<ma_log> pLog;
@@ -585,7 +692,7 @@ final class ma_context extends ffi.Struct {
   /// Only used if the log is owned by the context. The pLog member will be set to &log in this case.
   external ma_log log;
 
-  @ffi.Int32()
+  @ffi.Int()
   external int threadPriority;
 
   @ffi.Size()
@@ -688,34 +795,34 @@ final class ma_context extends ffi.Struct {
 final class ma_backend_callbacks extends ffi.Struct {
   external ffi.Pointer<
       ffi.NativeFunction<
-          ffi.Int32 Function(
+          ffi.Int Function(
               ffi.Pointer<ma_context> pContext,
               ffi.Pointer<ma_context_config> pConfig,
               ffi.Pointer<ma_backend_callbacks> pCallbacks)>> onContextInit;
 
   external ffi.Pointer<
           ffi
-          .NativeFunction<ffi.Int32 Function(ffi.Pointer<ma_context> pContext)>>
+          .NativeFunction<ffi.Int Function(ffi.Pointer<ma_context> pContext)>>
       onContextUninit;
 
   external ffi.Pointer<
       ffi.NativeFunction<
-          ffi.Int32 Function(
+          ffi.Int Function(
               ffi.Pointer<ma_context> pContext,
               ma_enum_devices_callback_proc callback,
               ffi.Pointer<ffi.Void> pUserData)>> onContextEnumerateDevices;
 
   external ffi.Pointer<
       ffi.NativeFunction<
-          ffi.Int32 Function(
+          ffi.Int Function(
               ffi.Pointer<ma_context> pContext,
-              ffi.Int32 deviceType,
+              ffi.UnsignedInt deviceType,
               ffi.Pointer<ma_device_id> pDeviceID,
               ffi.Pointer<ma_device_info> pDeviceInfo)>> onContextGetDeviceInfo;
 
   external ffi.Pointer<
           ffi.NativeFunction<
-              ffi.Int32 Function(
+              ffi.Int Function(
                   ffi.Pointer<ma_device> pDevice,
                   ffi.Pointer<ma_device_config> pConfig,
                   ffi.Pointer<ma_device_descriptor> pDescriptorPlayback,
@@ -723,23 +830,20 @@ final class ma_backend_callbacks extends ffi.Struct {
       onDeviceInit;
 
   external ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Int32 Function(ffi.Pointer<ma_device> pDevice)>>
+          ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ma_device> pDevice)>>
       onDeviceUninit;
 
   external ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Int32 Function(ffi.Pointer<ma_device> pDevice)>>
+          ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ma_device> pDevice)>>
       onDeviceStart;
 
   external ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Int32 Function(ffi.Pointer<ma_device> pDevice)>>
+          ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ma_device> pDevice)>>
       onDeviceStop;
 
   external ffi.Pointer<
       ffi.NativeFunction<
-          ffi.Int32 Function(
+          ffi.Int Function(
               ffi.Pointer<ma_device> pDevice,
               ffi.Pointer<ffi.Void> pFrames,
               ma_uint32 frameCount,
@@ -747,32 +851,30 @@ final class ma_backend_callbacks extends ffi.Struct {
 
   external ffi.Pointer<
       ffi.NativeFunction<
-          ffi.Int32 Function(
+          ffi.Int Function(
               ffi.Pointer<ma_device> pDevice,
               ffi.Pointer<ffi.Void> pFrames,
               ma_uint32 frameCount,
               ffi.Pointer<ma_uint32> pFramesWritten)>> onDeviceWrite;
 
   external ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Int32 Function(ffi.Pointer<ma_device> pDevice)>>
+          ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ma_device> pDevice)>>
       onDeviceDataLoop;
 
   external ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Int32 Function(ffi.Pointer<ma_device> pDevice)>>
+          ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ma_device> pDevice)>>
       onDeviceDataLoopWakeup;
 
   external ffi.Pointer<
       ffi.NativeFunction<
-          ffi.Int32 Function(ffi.Pointer<ma_device> pDevice, ffi.Int32 type,
+          ffi.Int Function(ffi.Pointer<ma_device> pDevice, ffi.UnsignedInt type,
               ffi.Pointer<ma_device_info> pDeviceInfo)>> onDeviceGetInfo;
 }
 
 final class ma_context_config extends ffi.Struct {
   external ffi.Pointer<ma_log> pLog;
 
-  @ffi.Int32()
+  @ffi.Int()
   external int threadPriority;
 
   @ffi.Size()
@@ -870,15 +972,38 @@ typedef ma_mutex = ma_handle;
 typedef ma_handle = ffi.Pointer<ffi.Void>;
 
 /// Thread priorities should be ordered such that the default priority of the worker thread is 0.
-abstract class ma_thread_priority {
-  static const int ma_thread_priority_idle = -5;
-  static const int ma_thread_priority_lowest = -4;
-  static const int ma_thread_priority_low = -3;
-  static const int ma_thread_priority_normal = -2;
-  static const int ma_thread_priority_high = -1;
-  static const int ma_thread_priority_highest = 0;
-  static const int ma_thread_priority_realtime = 1;
-  static const int ma_thread_priority_default = 0;
+enum ma_thread_priority {
+  ma_thread_priority_idle(-5),
+  ma_thread_priority_lowest(-4),
+  ma_thread_priority_low(-3),
+  ma_thread_priority_normal(-2),
+  ma_thread_priority_high(-1),
+  ma_thread_priority_highest(0),
+  ma_thread_priority_realtime(1);
+
+  static const ma_thread_priority_default = ma_thread_priority_highest;
+
+  final int value;
+  const ma_thread_priority(this.value);
+
+  static ma_thread_priority fromValue(int value) => switch (value) {
+        -5 => ma_thread_priority_idle,
+        -4 => ma_thread_priority_lowest,
+        -3 => ma_thread_priority_low,
+        -2 => ma_thread_priority_normal,
+        -1 => ma_thread_priority_high,
+        0 => ma_thread_priority_highest,
+        1 => ma_thread_priority_realtime,
+        _ =>
+          throw ArgumentError("Unknown value for ma_thread_priority: $value"),
+      };
+
+  @override
+  String toString() {
+    if (this == ma_thread_priority_highest)
+      return "ma_thread_priority.ma_thread_priority_highest, ma_thread_priority.ma_thread_priority_default";
+    return super.toString();
+  }
 }
 
 final class UnnamedStruct2 extends ffi.Struct {
@@ -897,7 +1022,7 @@ final class UnnamedStruct3 extends ffi.Struct {
 }
 
 final class UnnamedStruct4 extends ffi.Struct {
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int sessionCategory;
 
   @ma_uint32()
@@ -913,30 +1038,46 @@ final class UnnamedStruct4 extends ffi.Struct {
 }
 
 /// iOS/tvOS/watchOS session categories.
-abstract class ma_ios_session_category {
+enum ma_ios_session_category {
   /// AVAudioSessionCategoryPlayAndRecord.
-  static const int ma_ios_session_category_default = 0;
+  ma_ios_session_category_default(0),
 
   /// Leave the session category unchanged.
-  static const int ma_ios_session_category_none = 1;
+  ma_ios_session_category_none(1),
 
   /// AVAudioSessionCategoryAmbient
-  static const int ma_ios_session_category_ambient = 2;
+  ma_ios_session_category_ambient(2),
 
   /// AVAudioSessionCategorySoloAmbient
-  static const int ma_ios_session_category_solo_ambient = 3;
+  ma_ios_session_category_solo_ambient(3),
 
   /// AVAudioSessionCategoryPlayback
-  static const int ma_ios_session_category_playback = 4;
+  ma_ios_session_category_playback(4),
 
   /// AVAudioSessionCategoryRecord
-  static const int ma_ios_session_category_record = 5;
+  ma_ios_session_category_record(5),
 
   /// AVAudioSessionCategoryPlayAndRecord
-  static const int ma_ios_session_category_play_and_record = 6;
+  ma_ios_session_category_play_and_record(6),
 
   /// AVAudioSessionCategoryMultiRoute
-  static const int ma_ios_session_category_multi_route = 7;
+  ma_ios_session_category_multi_route(7);
+
+  final int value;
+  const ma_ios_session_category(this.value);
+
+  static ma_ios_session_category fromValue(int value) => switch (value) {
+        0 => ma_ios_session_category_default,
+        1 => ma_ios_session_category_none,
+        2 => ma_ios_session_category_ambient,
+        3 => ma_ios_session_category_solo_ambient,
+        4 => ma_ios_session_category_playback,
+        5 => ma_ios_session_category_record,
+        6 => ma_ios_session_category_play_and_record,
+        7 => ma_ios_session_category_multi_route,
+        _ => throw ArgumentError(
+            "Unknown value for ma_ios_session_category: $value"),
+      };
 }
 
 final class UnnamedStruct5 extends ffi.Struct {
@@ -968,26 +1109,37 @@ typedef ma_enum_devices_callback_proc
     = ffi.Pointer<ffi.NativeFunction<ma_enum_devices_callback_procFunction>>;
 typedef ma_enum_devices_callback_procFunction = ma_bool32 Function(
     ffi.Pointer<ma_context> pContext,
-    ffi.Int32 deviceType,
+    ffi.UnsignedInt deviceType,
     ffi.Pointer<ma_device_info> pInfo,
     ffi.Pointer<ffi.Void> pUserData);
 typedef Dartma_enum_devices_callback_procFunction = Dartma_uint32 Function(
     ffi.Pointer<ma_context> pContext,
-    int deviceType,
+    ma_device_type deviceType,
     ffi.Pointer<ma_device_info> pInfo,
     ffi.Pointer<ffi.Void> pUserData);
 
-abstract class ma_device_type {
-  static const int ma_device_type_playback = 1;
-  static const int ma_device_type_capture = 2;
+enum ma_device_type {
+  ma_device_type_playback(1),
+  ma_device_type_capture(2),
 
   /// 3
-  static const int ma_device_type_duplex = 3;
-  static const int ma_device_type_loopback = 4;
+  ma_device_type_duplex(3),
+  ma_device_type_loopback(4);
+
+  final int value;
+  const ma_device_type(this.value);
+
+  static ma_device_type fromValue(int value) => switch (value) {
+        1 => ma_device_type_playback,
+        2 => ma_device_type_capture,
+        3 => ma_device_type_duplex,
+        4 => ma_device_type_loopback,
+        _ => throw ArgumentError("Unknown value for ma_device_type: $value"),
+      };
 }
 
 final class ma_device_config extends ffi.Struct {
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int deviceType;
 
   @ma_uint32()
@@ -1002,7 +1154,7 @@ final class ma_device_config extends ffi.Struct {
   @ma_uint32()
   external int periods;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int performanceProfile;
 
   /// When set to true, the contents of the output buffer passed into the data callback will be left undefined rather than initialized to silence.
@@ -1048,9 +1200,19 @@ final class ma_device_config extends ffi.Struct {
   external UnnamedStruct18 aaudio;
 }
 
-abstract class ma_performance_profile {
-  static const int ma_performance_profile_low_latency = 0;
-  static const int ma_performance_profile_conservative = 1;
+enum ma_performance_profile {
+  ma_performance_profile_low_latency(0),
+  ma_performance_profile_conservative(1);
+
+  final int value;
+  const ma_performance_profile(this.value);
+
+  static ma_performance_profile fromValue(int value) => switch (value) {
+        0 => ma_performance_profile_low_latency,
+        1 => ma_performance_profile_conservative,
+        _ => throw ArgumentError(
+            "Unknown value for ma_performance_profile: $value"),
+      };
 }
 
 typedef ma_bool8 = ma_uint8;
@@ -1154,20 +1316,34 @@ typedef Dartma_device_notification_procFunction = void Function(
 final class ma_device_notification extends ffi.Struct {
   external ffi.Pointer<ma_device> pDevice;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int type;
 
   external UnnamedUnion2 data;
 }
 
 /// Device notification types.
-abstract class ma_device_notification_type {
-  static const int ma_device_notification_type_started = 0;
-  static const int ma_device_notification_type_stopped = 1;
-  static const int ma_device_notification_type_rerouted = 2;
-  static const int ma_device_notification_type_interruption_began = 3;
-  static const int ma_device_notification_type_interruption_ended = 4;
-  static const int ma_device_notification_type_unlocked = 5;
+enum ma_device_notification_type {
+  ma_device_notification_type_started(0),
+  ma_device_notification_type_stopped(1),
+  ma_device_notification_type_rerouted(2),
+  ma_device_notification_type_interruption_began(3),
+  ma_device_notification_type_interruption_ended(4),
+  ma_device_notification_type_unlocked(5);
+
+  final int value;
+  const ma_device_notification_type(this.value);
+
+  static ma_device_notification_type fromValue(int value) => switch (value) {
+        0 => ma_device_notification_type_started,
+        1 => ma_device_notification_type_stopped,
+        2 => ma_device_notification_type_rerouted,
+        3 => ma_device_notification_type_interruption_began,
+        4 => ma_device_notification_type_interruption_ended,
+        5 => ma_device_notification_type_unlocked,
+        _ => throw ArgumentError(
+            "Unknown value for ma_device_notification_type: $value"),
+      };
 }
 
 final class UnnamedUnion2 extends ffi.Union {
@@ -1225,7 +1401,7 @@ typedef Dartma_stop_procFunction = void Function(
 
 final class ma_resampler_config extends ffi.Struct {
   /// Must be either ma_format_f32 or ma_format_s16.
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int format;
 
   @ma_uint32()
@@ -1238,7 +1414,7 @@ final class ma_resampler_config extends ffi.Struct {
   external int sampleRateOut;
 
   /// When set to ma_resample_algorithm_custom, pBackendVTable will be used.
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int algorithm;
 
   external ffi.Pointer<ma_resampling_backend_vtable> pBackendVTable;
@@ -1248,23 +1424,33 @@ final class ma_resampler_config extends ffi.Struct {
   external UnnamedStruct10 linear;
 }
 
-abstract class ma_resample_algorithm {
+enum ma_resample_algorithm {
   /// Fastest, lowest quality. Optional low-pass filtering. Default.
-  static const int ma_resample_algorithm_linear = 0;
-  static const int ma_resample_algorithm_custom = 1;
+  ma_resample_algorithm_linear(0),
+  ma_resample_algorithm_custom(1);
+
+  final int value;
+  const ma_resample_algorithm(this.value);
+
+  static ma_resample_algorithm fromValue(int value) => switch (value) {
+        0 => ma_resample_algorithm_linear,
+        1 => ma_resample_algorithm_custom,
+        _ => throw ArgumentError(
+            "Unknown value for ma_resample_algorithm: $value"),
+      };
 }
 
 final class ma_resampling_backend_vtable extends ffi.Struct {
   external ffi.Pointer<
       ffi.NativeFunction<
-          ffi.Int32 Function(
+          ffi.Int Function(
               ffi.Pointer<ffi.Void> pUserData,
               ffi.Pointer<ma_resampler_config> pConfig,
               ffi.Pointer<ffi.Size> pHeapSizeInBytes)>> onGetHeapSize;
 
   external ffi.Pointer<
           ffi.NativeFunction<
-              ffi.Int32 Function(
+              ffi.Int Function(
                   ffi.Pointer<ffi.Void> pUserData,
                   ffi.Pointer<ma_resampler_config> pConfig,
                   ffi.Pointer<ffi.Void> pHeap,
@@ -1281,7 +1467,7 @@ final class ma_resampling_backend_vtable extends ffi.Struct {
 
   external ffi.Pointer<
       ffi.NativeFunction<
-          ffi.Int32 Function(
+          ffi.Int Function(
               ffi.Pointer<ffi.Void> pUserData,
               ffi.Pointer<ma_resampling_backend> pBackend,
               ffi.Pointer<ffi.Void> pFramesIn,
@@ -1292,7 +1478,7 @@ final class ma_resampling_backend_vtable extends ffi.Struct {
   /// Optional. Rate changes will be disabled.
   external ffi.Pointer<
       ffi.NativeFunction<
-          ffi.Int32 Function(
+          ffi.Int Function(
               ffi.Pointer<ffi.Void> pUserData,
               ffi.Pointer<ma_resampling_backend> pBackend,
               ma_uint32 sampleRateIn,
@@ -1313,7 +1499,7 @@ final class ma_resampling_backend_vtable extends ffi.Struct {
   /// Optional. Latency mitigation will be disabled.
   external ffi.Pointer<
           ffi.NativeFunction<
-              ffi.Int32 Function(
+              ffi.Int Function(
                   ffi.Pointer<ffi.Void> pUserData,
                   ffi.Pointer<ma_resampling_backend> pBackend,
                   ma_uint64 outputFrameCount,
@@ -1323,7 +1509,7 @@ final class ma_resampling_backend_vtable extends ffi.Struct {
   /// Optional. Latency mitigation will be disabled.
   external ffi.Pointer<
           ffi.NativeFunction<
-              ffi.Int32 Function(
+              ffi.Int Function(
                   ffi.Pointer<ffi.Void> pUserData,
                   ffi.Pointer<ma_resampling_backend> pBackend,
                   ma_uint64 inputFrameCount,
@@ -1332,7 +1518,7 @@ final class ma_resampling_backend_vtable extends ffi.Struct {
 
   external ffi.Pointer<
       ffi.NativeFunction<
-          ffi.Int32 Function(ffi.Pointer<ffi.Void> pUserData,
+          ffi.Int Function(ffi.Pointer<ffi.Void> pUserData,
               ffi.Pointer<ma_resampling_backend> pBackend)>> onReset;
 }
 
@@ -1347,7 +1533,7 @@ final class UnnamedStruct10 extends ffi.Struct {
 final class UnnamedStruct11 extends ffi.Struct {
   external ffi.Pointer<ma_device_id> pDeviceID;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int format;
 
   @ma_uint32()
@@ -1355,38 +1541,66 @@ final class UnnamedStruct11 extends ffi.Struct {
 
   external ffi.Pointer<ma_channel> pChannelMap;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int channelMixMode;
 
   /// When an output LFE channel is present, but no input LFE, set to true to set the output LFE to the average of all spatial channels (LR, FR, etc.). Ignored when an input LFE is present.
   @ma_bool32()
   external int calculateLFEFromSpatialChannels;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int shareMode;
 }
 
-abstract class ma_channel_mix_mode {
+enum ma_channel_mix_mode {
   /// Simple averaging based on the plane(s) the channel is sitting on.
-  static const int ma_channel_mix_mode_rectangular = 0;
+  ma_channel_mix_mode_rectangular(0),
 
   /// Drop excess channels; zeroed out extra channels.
-  static const int ma_channel_mix_mode_simple = 1;
+  ma_channel_mix_mode_simple(1),
 
   /// Use custom weights specified in ma_channel_converter_config.
-  static const int ma_channel_mix_mode_custom_weights = 2;
-  static const int ma_channel_mix_mode_default = 0;
+  ma_channel_mix_mode_custom_weights(2);
+
+  static const ma_channel_mix_mode_default = ma_channel_mix_mode_rectangular;
+
+  final int value;
+  const ma_channel_mix_mode(this.value);
+
+  static ma_channel_mix_mode fromValue(int value) => switch (value) {
+        0 => ma_channel_mix_mode_rectangular,
+        1 => ma_channel_mix_mode_simple,
+        2 => ma_channel_mix_mode_custom_weights,
+        _ =>
+          throw ArgumentError("Unknown value for ma_channel_mix_mode: $value"),
+      };
+
+  @override
+  String toString() {
+    if (this == ma_channel_mix_mode_rectangular)
+      return "ma_channel_mix_mode.ma_channel_mix_mode_rectangular, ma_channel_mix_mode.ma_channel_mix_mode_default";
+    return super.toString();
+  }
 }
 
-abstract class ma_share_mode {
-  static const int ma_share_mode_shared = 0;
-  static const int ma_share_mode_exclusive = 1;
+enum ma_share_mode {
+  ma_share_mode_shared(0),
+  ma_share_mode_exclusive(1);
+
+  final int value;
+  const ma_share_mode(this.value);
+
+  static ma_share_mode fromValue(int value) => switch (value) {
+        0 => ma_share_mode_shared,
+        1 => ma_share_mode_exclusive,
+        _ => throw ArgumentError("Unknown value for ma_share_mode: $value"),
+      };
 }
 
 final class UnnamedStruct12 extends ffi.Struct {
   external ffi.Pointer<ma_device_id> pDeviceID;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int format;
 
   @ma_uint32()
@@ -1394,20 +1608,20 @@ final class UnnamedStruct12 extends ffi.Struct {
 
   external ffi.Pointer<ma_channel> pChannelMap;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int channelMixMode;
 
   /// When an output LFE channel is present, but no input LFE, set to true to set the output LFE to the average of all spatial channels (LR, FR, etc.). Ignored when an input LFE is present.
   @ma_bool32()
   external int calculateLFEFromSpatialChannels;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int shareMode;
 }
 
 final class UnnamedStruct13 extends ffi.Struct {
   /// When configured, uses Avrt APIs to set the thread characteristics.
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int usage;
 
   /// When set to true, disables the use of AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM.
@@ -1436,10 +1650,20 @@ final class UnnamedStruct13 extends ffi.Struct {
 }
 
 /// WASAPI audio thread priority characteristics.
-abstract class ma_wasapi_usage {
-  static const int ma_wasapi_usage_default = 0;
-  static const int ma_wasapi_usage_games = 1;
-  static const int ma_wasapi_usage_pro_audio = 2;
+enum ma_wasapi_usage {
+  ma_wasapi_usage_default(0),
+  ma_wasapi_usage_games(1),
+  ma_wasapi_usage_pro_audio(2);
+
+  final int value;
+  const ma_wasapi_usage(this.value);
+
+  static ma_wasapi_usage fromValue(int value) => switch (value) {
+        0 => ma_wasapi_usage_default,
+        1 => ma_wasapi_usage_games,
+        2 => ma_wasapi_usage_pro_audio,
+        _ => throw ArgumentError("Unknown value for ma_wasapi_usage: $value"),
+      };
 }
 
 final class UnnamedStruct14 extends ffi.Struct {
@@ -1473,10 +1697,10 @@ final class UnnamedStruct16 extends ffi.Struct {
 }
 
 final class UnnamedStruct17 extends ffi.Struct {
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int streamType;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int recordingPreset;
 
   @ma_bool32()
@@ -1484,61 +1708,90 @@ final class UnnamedStruct17 extends ffi.Struct {
 }
 
 /// OpenSL stream types.
-abstract class ma_opensl_stream_type {
+enum ma_opensl_stream_type {
   /// Leaves the stream type unset.
-  static const int ma_opensl_stream_type_default = 0;
+  ma_opensl_stream_type_default(0),
 
   /// SL_ANDROID_STREAM_VOICE
-  static const int ma_opensl_stream_type_voice = 1;
+  ma_opensl_stream_type_voice(1),
 
   /// SL_ANDROID_STREAM_SYSTEM
-  static const int ma_opensl_stream_type_system = 2;
+  ma_opensl_stream_type_system(2),
 
   /// SL_ANDROID_STREAM_RING
-  static const int ma_opensl_stream_type_ring = 3;
+  ma_opensl_stream_type_ring(3),
 
   /// SL_ANDROID_STREAM_MEDIA
-  static const int ma_opensl_stream_type_media = 4;
+  ma_opensl_stream_type_media(4),
 
   /// SL_ANDROID_STREAM_ALARM
-  static const int ma_opensl_stream_type_alarm = 5;
+  ma_opensl_stream_type_alarm(5),
 
   /// SL_ANDROID_STREAM_NOTIFICATION
-  static const int ma_opensl_stream_type_notification = 6;
+  ma_opensl_stream_type_notification(6);
+
+  final int value;
+  const ma_opensl_stream_type(this.value);
+
+  static ma_opensl_stream_type fromValue(int value) => switch (value) {
+        0 => ma_opensl_stream_type_default,
+        1 => ma_opensl_stream_type_voice,
+        2 => ma_opensl_stream_type_system,
+        3 => ma_opensl_stream_type_ring,
+        4 => ma_opensl_stream_type_media,
+        5 => ma_opensl_stream_type_alarm,
+        6 => ma_opensl_stream_type_notification,
+        _ => throw ArgumentError(
+            "Unknown value for ma_opensl_stream_type: $value"),
+      };
 }
 
 /// OpenSL recording presets.
-abstract class ma_opensl_recording_preset {
+enum ma_opensl_recording_preset {
   /// Leaves the input preset unset.
-  static const int ma_opensl_recording_preset_default = 0;
+  ma_opensl_recording_preset_default(0),
 
   /// SL_ANDROID_RECORDING_PRESET_GENERIC
-  static const int ma_opensl_recording_preset_generic = 1;
+  ma_opensl_recording_preset_generic(1),
 
   /// SL_ANDROID_RECORDING_PRESET_CAMCORDER
-  static const int ma_opensl_recording_preset_camcorder = 2;
+  ma_opensl_recording_preset_camcorder(2),
 
   /// SL_ANDROID_RECORDING_PRESET_VOICE_RECOGNITION
-  static const int ma_opensl_recording_preset_voice_recognition = 3;
+  ma_opensl_recording_preset_voice_recognition(3),
 
   /// SL_ANDROID_RECORDING_PRESET_VOICE_COMMUNICATION
-  static const int ma_opensl_recording_preset_voice_communication = 4;
+  ma_opensl_recording_preset_voice_communication(4),
 
   /// SL_ANDROID_RECORDING_PRESET_UNPROCESSED
-  static const int ma_opensl_recording_preset_voice_unprocessed = 5;
+  ma_opensl_recording_preset_voice_unprocessed(5);
+
+  final int value;
+  const ma_opensl_recording_preset(this.value);
+
+  static ma_opensl_recording_preset fromValue(int value) => switch (value) {
+        0 => ma_opensl_recording_preset_default,
+        1 => ma_opensl_recording_preset_generic,
+        2 => ma_opensl_recording_preset_camcorder,
+        3 => ma_opensl_recording_preset_voice_recognition,
+        4 => ma_opensl_recording_preset_voice_communication,
+        5 => ma_opensl_recording_preset_voice_unprocessed,
+        _ => throw ArgumentError(
+            "Unknown value for ma_opensl_recording_preset: $value"),
+      };
 }
 
 final class UnnamedStruct18 extends ffi.Struct {
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int usage;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int contentType;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int inputPreset;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int allowedCapturePolicy;
 
   @ma_bool32()
@@ -1549,123 +1802,188 @@ final class UnnamedStruct18 extends ffi.Struct {
 }
 
 /// AAudio usage types.
-abstract class ma_aaudio_usage {
+enum ma_aaudio_usage {
   /// Leaves the usage type unset.
-  static const int ma_aaudio_usage_default = 0;
+  ma_aaudio_usage_default(0),
 
   /// AAUDIO_USAGE_MEDIA
-  static const int ma_aaudio_usage_media = 1;
+  ma_aaudio_usage_media(1),
 
   /// AAUDIO_USAGE_VOICE_COMMUNICATION
-  static const int ma_aaudio_usage_voice_communication = 2;
+  ma_aaudio_usage_voice_communication(2),
 
   /// AAUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING
-  static const int ma_aaudio_usage_voice_communication_signalling = 3;
+  ma_aaudio_usage_voice_communication_signalling(3),
 
   /// AAUDIO_USAGE_ALARM
-  static const int ma_aaudio_usage_alarm = 4;
+  ma_aaudio_usage_alarm(4),
 
   /// AAUDIO_USAGE_NOTIFICATION
-  static const int ma_aaudio_usage_notification = 5;
+  ma_aaudio_usage_notification(5),
 
   /// AAUDIO_USAGE_NOTIFICATION_RINGTONE
-  static const int ma_aaudio_usage_notification_ringtone = 6;
+  ma_aaudio_usage_notification_ringtone(6),
 
   /// AAUDIO_USAGE_NOTIFICATION_EVENT
-  static const int ma_aaudio_usage_notification_event = 7;
+  ma_aaudio_usage_notification_event(7),
 
   /// AAUDIO_USAGE_ASSISTANCE_ACCESSIBILITY
-  static const int ma_aaudio_usage_assistance_accessibility = 8;
+  ma_aaudio_usage_assistance_accessibility(8),
 
   /// AAUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE
-  static const int ma_aaudio_usage_assistance_navigation_guidance = 9;
+  ma_aaudio_usage_assistance_navigation_guidance(9),
 
   /// AAUDIO_USAGE_ASSISTANCE_SONIFICATION
-  static const int ma_aaudio_usage_assistance_sonification = 10;
+  ma_aaudio_usage_assistance_sonification(10),
 
   /// AAUDIO_USAGE_GAME
-  static const int ma_aaudio_usage_game = 11;
+  ma_aaudio_usage_game(11),
 
   /// AAUDIO_USAGE_ASSISTANT
-  static const int ma_aaudio_usage_assitant = 12;
+  ma_aaudio_usage_assitant(12),
 
   /// AAUDIO_SYSTEM_USAGE_EMERGENCY
-  static const int ma_aaudio_usage_emergency = 13;
+  ma_aaudio_usage_emergency(13),
 
   /// AAUDIO_SYSTEM_USAGE_SAFETY
-  static const int ma_aaudio_usage_safety = 14;
+  ma_aaudio_usage_safety(14),
 
   /// AAUDIO_SYSTEM_USAGE_VEHICLE_STATUS
-  static const int ma_aaudio_usage_vehicle_status = 15;
+  ma_aaudio_usage_vehicle_status(15),
 
   /// AAUDIO_SYSTEM_USAGE_ANNOUNCEMENT
-  static const int ma_aaudio_usage_announcement = 16;
+  ma_aaudio_usage_announcement(16);
+
+  final int value;
+  const ma_aaudio_usage(this.value);
+
+  static ma_aaudio_usage fromValue(int value) => switch (value) {
+        0 => ma_aaudio_usage_default,
+        1 => ma_aaudio_usage_media,
+        2 => ma_aaudio_usage_voice_communication,
+        3 => ma_aaudio_usage_voice_communication_signalling,
+        4 => ma_aaudio_usage_alarm,
+        5 => ma_aaudio_usage_notification,
+        6 => ma_aaudio_usage_notification_ringtone,
+        7 => ma_aaudio_usage_notification_event,
+        8 => ma_aaudio_usage_assistance_accessibility,
+        9 => ma_aaudio_usage_assistance_navigation_guidance,
+        10 => ma_aaudio_usage_assistance_sonification,
+        11 => ma_aaudio_usage_game,
+        12 => ma_aaudio_usage_assitant,
+        13 => ma_aaudio_usage_emergency,
+        14 => ma_aaudio_usage_safety,
+        15 => ma_aaudio_usage_vehicle_status,
+        16 => ma_aaudio_usage_announcement,
+        _ => throw ArgumentError("Unknown value for ma_aaudio_usage: $value"),
+      };
 }
 
 /// AAudio content types.
-abstract class ma_aaudio_content_type {
+enum ma_aaudio_content_type {
   /// Leaves the content type unset.
-  static const int ma_aaudio_content_type_default = 0;
+  ma_aaudio_content_type_default(0),
 
   /// AAUDIO_CONTENT_TYPE_SPEECH
-  static const int ma_aaudio_content_type_speech = 1;
+  ma_aaudio_content_type_speech(1),
 
   /// AAUDIO_CONTENT_TYPE_MUSIC
-  static const int ma_aaudio_content_type_music = 2;
+  ma_aaudio_content_type_music(2),
 
   /// AAUDIO_CONTENT_TYPE_MOVIE
-  static const int ma_aaudio_content_type_movie = 3;
+  ma_aaudio_content_type_movie(3),
 
   /// AAUDIO_CONTENT_TYPE_SONIFICATION
-  static const int ma_aaudio_content_type_sonification = 4;
+  ma_aaudio_content_type_sonification(4);
+
+  final int value;
+  const ma_aaudio_content_type(this.value);
+
+  static ma_aaudio_content_type fromValue(int value) => switch (value) {
+        0 => ma_aaudio_content_type_default,
+        1 => ma_aaudio_content_type_speech,
+        2 => ma_aaudio_content_type_music,
+        3 => ma_aaudio_content_type_movie,
+        4 => ma_aaudio_content_type_sonification,
+        _ => throw ArgumentError(
+            "Unknown value for ma_aaudio_content_type: $value"),
+      };
 }
 
 /// AAudio input presets.
-abstract class ma_aaudio_input_preset {
+enum ma_aaudio_input_preset {
   /// Leaves the input preset unset.
-  static const int ma_aaudio_input_preset_default = 0;
+  ma_aaudio_input_preset_default(0),
 
   /// AAUDIO_INPUT_PRESET_GENERIC
-  static const int ma_aaudio_input_preset_generic = 1;
+  ma_aaudio_input_preset_generic(1),
 
   /// AAUDIO_INPUT_PRESET_CAMCORDER
-  static const int ma_aaudio_input_preset_camcorder = 2;
+  ma_aaudio_input_preset_camcorder(2),
 
   /// AAUDIO_INPUT_PRESET_VOICE_RECOGNITION
-  static const int ma_aaudio_input_preset_voice_recognition = 3;
+  ma_aaudio_input_preset_voice_recognition(3),
 
   /// AAUDIO_INPUT_PRESET_VOICE_COMMUNICATION
-  static const int ma_aaudio_input_preset_voice_communication = 4;
+  ma_aaudio_input_preset_voice_communication(4),
 
   /// AAUDIO_INPUT_PRESET_UNPROCESSED
-  static const int ma_aaudio_input_preset_unprocessed = 5;
+  ma_aaudio_input_preset_unprocessed(5),
 
   /// AAUDIO_INPUT_PRESET_VOICE_PERFORMANCE
-  static const int ma_aaudio_input_preset_voice_performance = 6;
+  ma_aaudio_input_preset_voice_performance(6);
+
+  final int value;
+  const ma_aaudio_input_preset(this.value);
+
+  static ma_aaudio_input_preset fromValue(int value) => switch (value) {
+        0 => ma_aaudio_input_preset_default,
+        1 => ma_aaudio_input_preset_generic,
+        2 => ma_aaudio_input_preset_camcorder,
+        3 => ma_aaudio_input_preset_voice_recognition,
+        4 => ma_aaudio_input_preset_voice_communication,
+        5 => ma_aaudio_input_preset_unprocessed,
+        6 => ma_aaudio_input_preset_voice_performance,
+        _ => throw ArgumentError(
+            "Unknown value for ma_aaudio_input_preset: $value"),
+      };
 }
 
-abstract class ma_aaudio_allowed_capture_policy {
+enum ma_aaudio_allowed_capture_policy {
   /// Leaves the allowed capture policy unset.
-  static const int ma_aaudio_allow_capture_default = 0;
+  ma_aaudio_allow_capture_default(0),
 
   /// AAUDIO_ALLOW_CAPTURE_BY_ALL
-  static const int ma_aaudio_allow_capture_by_all = 1;
+  ma_aaudio_allow_capture_by_all(1),
 
   /// AAUDIO_ALLOW_CAPTURE_BY_SYSTEM
-  static const int ma_aaudio_allow_capture_by_system = 2;
+  ma_aaudio_allow_capture_by_system(2),
 
   /// AAUDIO_ALLOW_CAPTURE_BY_NONE
-  static const int ma_aaudio_allow_capture_by_none = 3;
+  ma_aaudio_allow_capture_by_none(3);
+
+  final int value;
+  const ma_aaudio_allowed_capture_policy(this.value);
+
+  static ma_aaudio_allowed_capture_policy fromValue(int value) =>
+      switch (value) {
+        0 => ma_aaudio_allow_capture_default,
+        1 => ma_aaudio_allow_capture_by_all,
+        2 => ma_aaudio_allow_capture_by_system,
+        3 => ma_aaudio_allow_capture_by_none,
+        _ => throw ArgumentError(
+            "Unknown value for ma_aaudio_allowed_capture_policy: $value"),
+      };
 }
 
 /// Describes some basic details about a playback or capture device.
 final class ma_device_descriptor extends ffi.Struct {
   external ffi.Pointer<ma_device_id> pDeviceID;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int shareMode;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int format;
 
   @ma_uint32()
@@ -1688,26 +2006,48 @@ final class ma_device_descriptor extends ffi.Struct {
 }
 
 /// Backend enums must be in priority order.
-abstract class ma_backend {
-  static const int ma_backend_wasapi = 0;
-  static const int ma_backend_dsound = 1;
-  static const int ma_backend_winmm = 2;
-  static const int ma_backend_coreaudio = 3;
-  static const int ma_backend_sndio = 4;
-  static const int ma_backend_audio4 = 5;
-  static const int ma_backend_oss = 6;
-  static const int ma_backend_pulseaudio = 7;
-  static const int ma_backend_alsa = 8;
-  static const int ma_backend_jack = 9;
-  static const int ma_backend_aaudio = 10;
-  static const int ma_backend_opensl = 11;
-  static const int ma_backend_webaudio = 12;
+enum ma_backend {
+  ma_backend_wasapi(0),
+  ma_backend_dsound(1),
+  ma_backend_winmm(2),
+  ma_backend_coreaudio(3),
+  ma_backend_sndio(4),
+  ma_backend_audio4(5),
+  ma_backend_oss(6),
+  ma_backend_pulseaudio(7),
+  ma_backend_alsa(8),
+  ma_backend_jack(9),
+  ma_backend_aaudio(10),
+  ma_backend_opensl(11),
+  ma_backend_webaudio(12),
 
   /// <-- Custom backend, with callbacks defined by the context config.
-  static const int ma_backend_custom = 13;
+  ma_backend_custom(13),
 
   /// <-- Must always be the last item. Lowest priority, and used as the terminator for backend enumeration.
-  static const int ma_backend_null = 14;
+  ma_backend_null(14);
+
+  final int value;
+  const ma_backend(this.value);
+
+  static ma_backend fromValue(int value) => switch (value) {
+        0 => ma_backend_wasapi,
+        1 => ma_backend_dsound,
+        2 => ma_backend_winmm,
+        3 => ma_backend_coreaudio,
+        4 => ma_backend_sndio,
+        5 => ma_backend_audio4,
+        6 => ma_backend_oss,
+        7 => ma_backend_pulseaudio,
+        8 => ma_backend_alsa,
+        9 => ma_backend_jack,
+        10 => ma_backend_aaudio,
+        11 => ma_backend_opensl,
+        12 => ma_backend_webaudio,
+        13 => ma_backend_custom,
+        14 => ma_backend_null,
+        _ => throw ArgumentError("Unknown value for ma_backend: $value"),
+      };
 }
 
 final class UnnamedUnion3 extends ffi.Union {
@@ -1779,7 +2119,7 @@ final class UnnamedStruct20 extends ffi.Struct {
 }
 
 final class UnnamedStruct21 extends ffi.Struct {
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int deviceType;
 
   external ffi.Pointer<ffi.Void> pAudioClient;
@@ -1787,13 +2127,13 @@ final class UnnamedStruct21 extends ffi.Struct {
   external ffi.Pointer<ffi.Pointer<ffi.Void>> ppAudioClientService;
 
   /// The result from creating the audio client service.
-  external ffi.Pointer<ffi.Int32> pResult;
+  external ffi.Pointer<ffi.Int> pResult;
 }
 
 final class UnnamedStruct22 extends ffi.Struct {
   external ffi.Pointer<ma_device> pDevice;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int deviceType;
 }
 
@@ -1942,24 +2282,36 @@ final class UnnamedStruct27 extends ffi.Struct {
 }
 
 final class ma_atomic_device_state extends ffi.Struct {
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int value;
 }
 
-abstract class ma_device_state {
-  static const int ma_device_state_uninitialized = 0;
+enum ma_device_state {
+  ma_device_state_uninitialized(0),
 
   /// The device's default state after initialization.
-  static const int ma_device_state_stopped = 1;
+  ma_device_state_stopped(1),
 
   /// The device is started and is requesting and/or delivering audio data.
-  static const int ma_device_state_started = 2;
+  ma_device_state_started(2),
 
   /// Transitioning from a stopped state to started.
-  static const int ma_device_state_starting = 3;
+  ma_device_state_starting(3),
 
   /// Transitioning from a started state to stopped.
-  static const int ma_device_state_stopping = 4;
+  ma_device_state_stopping(4);
+
+  final int value;
+  const ma_device_state(this.value);
+
+  static ma_device_state fromValue(int value) => switch (value) {
+        0 => ma_device_state_uninitialized,
+        1 => ma_device_state_stopped,
+        2 => ma_device_state_started,
+        3 => ma_device_state_starting,
+        4 => ma_device_state_stopping,
+        _ => throw ArgumentError("Unknown value for ma_device_state: $value"),
+      };
 }
 
 final class ma_atomic_float extends ffi.Struct {
@@ -1988,7 +2340,7 @@ final class ma_pcm_rb extends ffi.Struct {
 
   external ma_rb rb;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int format;
 
   @ma_uint32()
@@ -2032,7 +2384,7 @@ final class ma_rb extends ffi.Struct {
 }
 
 final class UnnamedStruct28 extends ffi.Struct {
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int algorithm;
 
   external ffi.Pointer<ma_resampling_backend_vtable> pBackendVTable;
@@ -2059,10 +2411,10 @@ final class UnnamedStruct30 extends ffi.Struct {
   external ffi.Array<ffi.Char> name;
 
   /// Set to whatever was passed in when the device was initialized.
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int shareMode;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int format;
 
   @ma_uint32()
@@ -2071,7 +2423,7 @@ final class UnnamedStruct30 extends ffi.Struct {
   @ffi.Array.multi([254])
   external ffi.Array<ma_channel> channelMap;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int internalFormat;
 
   @ma_uint32()
@@ -2089,7 +2441,7 @@ final class UnnamedStruct30 extends ffi.Struct {
   @ma_uint32()
   external int internalPeriods;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int channelMixMode;
 
   @ma_bool32()
@@ -2121,10 +2473,10 @@ final class UnnamedStruct30 extends ffi.Struct {
 }
 
 final class ma_data_converter extends ffi.Struct {
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int formatIn;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int formatOut;
 
   @ma_uint32()
@@ -2139,11 +2491,11 @@ final class ma_data_converter extends ffi.Struct {
   @ma_uint32()
   external int sampleRateOut;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int ditherMode;
 
   /// The execution path the data converter will follow when processing.
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int executionPath;
 
   external ma_channel_converter channelConverter;
@@ -2172,34 +2524,59 @@ final class ma_data_converter extends ffi.Struct {
   external ffi.Pointer<ffi.Void> _pHeap;
 }
 
-abstract class ma_dither_mode {
-  static const int ma_dither_mode_none = 0;
-  static const int ma_dither_mode_rectangle = 1;
-  static const int ma_dither_mode_triangle = 2;
+enum ma_dither_mode {
+  ma_dither_mode_none(0),
+  ma_dither_mode_rectangle(1),
+  ma_dither_mode_triangle(2);
+
+  final int value;
+  const ma_dither_mode(this.value);
+
+  static ma_dither_mode fromValue(int value) => switch (value) {
+        0 => ma_dither_mode_none,
+        1 => ma_dither_mode_rectangle,
+        2 => ma_dither_mode_triangle,
+        _ => throw ArgumentError("Unknown value for ma_dither_mode: $value"),
+      };
 }
 
-abstract class ma_data_converter_execution_path {
+enum ma_data_converter_execution_path {
   /// No conversion.
-  static const int ma_data_converter_execution_path_passthrough = 0;
+  ma_data_converter_execution_path_passthrough(0),
 
   /// Only format conversion.
-  static const int ma_data_converter_execution_path_format_only = 1;
+  ma_data_converter_execution_path_format_only(1),
 
   /// Only channel conversion.
-  static const int ma_data_converter_execution_path_channels_only = 2;
+  ma_data_converter_execution_path_channels_only(2),
 
   /// Only resampling.
-  static const int ma_data_converter_execution_path_resample_only = 3;
+  ma_data_converter_execution_path_resample_only(3),
 
   /// All conversions, but resample as the first step.
-  static const int ma_data_converter_execution_path_resample_first = 4;
+  ma_data_converter_execution_path_resample_first(4),
 
   /// All conversions, but channels as the first step.
-  static const int ma_data_converter_execution_path_channels_first = 5;
+  ma_data_converter_execution_path_channels_first(5);
+
+  final int value;
+  const ma_data_converter_execution_path(this.value);
+
+  static ma_data_converter_execution_path fromValue(int value) =>
+      switch (value) {
+        0 => ma_data_converter_execution_path_passthrough,
+        1 => ma_data_converter_execution_path_format_only,
+        2 => ma_data_converter_execution_path_channels_only,
+        3 => ma_data_converter_execution_path_resample_only,
+        4 => ma_data_converter_execution_path_resample_first,
+        5 => ma_data_converter_execution_path_channels_first,
+        _ => throw ArgumentError(
+            "Unknown value for ma_data_converter_execution_path: $value"),
+      };
 }
 
 final class ma_channel_converter extends ffi.Struct {
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int format;
 
   @ma_uint32()
@@ -2208,10 +2585,10 @@ final class ma_channel_converter extends ffi.Struct {
   @ma_uint32()
   external int channelsOut;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int mixingMode;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int conversionPath;
 
   external ffi.Pointer<ma_channel> pChannelMapIn;
@@ -2232,21 +2609,35 @@ final class ma_channel_converter extends ffi.Struct {
 }
 
 /// Channel Conversion
-abstract class ma_channel_conversion_path {
-  static const int ma_channel_conversion_path_unknown = 0;
-  static const int ma_channel_conversion_path_passthrough = 1;
+enum ma_channel_conversion_path {
+  ma_channel_conversion_path_unknown(0),
+  ma_channel_conversion_path_passthrough(1),
 
   /// Converting to mono.
-  static const int ma_channel_conversion_path_mono_out = 2;
+  ma_channel_conversion_path_mono_out(2),
 
   /// Converting from mono.
-  static const int ma_channel_conversion_path_mono_in = 3;
+  ma_channel_conversion_path_mono_in(3),
 
   /// Simple shuffle. Will use this when all channels are present in both input and output channel maps, but just in a different order.
-  static const int ma_channel_conversion_path_shuffle = 4;
+  ma_channel_conversion_path_shuffle(4),
 
   /// Blended based on weights.
-  static const int ma_channel_conversion_path_weights = 5;
+  ma_channel_conversion_path_weights(5);
+
+  final int value;
+  const ma_channel_conversion_path(this.value);
+
+  static ma_channel_conversion_path fromValue(int value) => switch (value) {
+        0 => ma_channel_conversion_path_unknown,
+        1 => ma_channel_conversion_path_passthrough,
+        2 => ma_channel_conversion_path_mono_out,
+        3 => ma_channel_conversion_path_mono_in,
+        4 => ma_channel_conversion_path_shuffle,
+        5 => ma_channel_conversion_path_weights,
+        _ => throw ArgumentError(
+            "Unknown value for ma_channel_conversion_path: $value"),
+      };
 }
 
 final class UnnamedUnion6 extends ffi.Union {
@@ -2262,7 +2653,7 @@ final class ma_resampler extends ffi.Struct {
 
   external ffi.Pointer<ffi.Void> pBackendUserData;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int format;
 
   @ma_uint32()
@@ -2320,7 +2711,7 @@ final class ma_linear_resampler extends ffi.Struct {
 
 /// Resampling
 final class ma_linear_resampler_config extends ffi.Struct {
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int format;
 
   @ma_uint32()
@@ -2357,7 +2748,7 @@ final class UnnamedUnion9 extends ffi.Union {
 }
 
 final class ma_lpf extends ffi.Struct {
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int format;
 
   @ma_uint32()
@@ -2384,7 +2775,7 @@ final class ma_lpf extends ffi.Struct {
 }
 
 final class ma_lpf1 extends ffi.Struct {
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int format;
 
   @ma_uint32()
@@ -2416,7 +2807,7 @@ final class ma_lpf2 extends ffi.Struct {
 }
 
 final class ma_biquad extends ffi.Struct {
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int format;
 
   @ma_uint32()
@@ -2455,10 +2846,10 @@ final class UnnamedStruct31 extends ffi.Struct {
   external ffi.Array<ffi.Char> name;
 
   /// Set to whatever was passed in when the device was initialized.
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int shareMode;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int format;
 
   @ma_uint32()
@@ -2467,7 +2858,7 @@ final class UnnamedStruct31 extends ffi.Struct {
   @ffi.Array.multi([254])
   external ffi.Array<ma_channel> channelMap;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int internalFormat;
 
   @ma_uint32()
@@ -2485,7 +2876,7 @@ final class UnnamedStruct31 extends ffi.Struct {
   @ma_uint32()
   external int internalPeriods;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int channelMixMode;
 
   @ma_bool32()
@@ -2556,7 +2947,7 @@ final class UnnamedStruct32 extends ffi.Struct {
   @ma_uint32()
   external int originalPeriods;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int originalPerformanceProfile;
 
   @ma_uint32()
@@ -2616,7 +3007,7 @@ final class UnnamedStruct32 extends ffi.Struct {
   @ma_bool8()
   external int isDetachedCapture;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int usage;
 
   external ffi.Pointer<ffi.Void> hAvrtHandle;
@@ -2732,7 +3123,7 @@ final class UnnamedStruct36 extends ffi.Struct {
   @ma_uint32()
   external int operation;
 
-  @ffi.Int32()
+  @ffi.Int()
   external int operationResult;
 
   external ma_timer timer;
