@@ -17,10 +17,10 @@ void _rta_check_and_init_context() {
     if (!g_ContextInitialized) {
         ma_context_config contextConfig = ma_context_config_init();
 
-        ma_log log;
-        ma_log_init(NULL, &log);
-        ma_log_register_callback(&log, ma_log_callback_init(_rta_log_callback, NULL));
-        contextConfig.pLog = &log;
+        // ma_log log;
+        // ma_log_init(NULL, &log);
+        // ma_log_register_callback(&log, ma_log_callback_init(_rta_log_callback, NULL));
+        // contextConfig.pLog = &log;
 
         ma_context_init(NULL, 0, &contextConfig, &g_Context);
         g_ContextInitialized = 1;
@@ -108,7 +108,7 @@ static ma_result rta_audio_callback_datasource_read(ma_data_source* pDataSource,
         frame, the second pair of samples will be the left and right samples for the second frame, etc.
     */
 
-    pCallbackDataSource->dataCallback(pFramesOutF32, frameCount);
+    pCallbackDataSource->dataCallback(pFramesOutF32, (int)frameCount);
 
     framesRead = frameCount;
 
@@ -226,6 +226,8 @@ rta_error rta_context_create(
     config.sampleRate = contextConfig->sampleRate;
     config.dataCallback = _rta_data_callback;
     config.performanceProfile = ma_performance_profile_low_latency;
+    config.noClip = MA_TRUE;
+    config.noPreSilencedOutputBuffer = MA_TRUE;
     config.pUserData = context;
 
     rta_audio_callback_datasource_init(&context->dataSource);
@@ -259,6 +261,8 @@ rta_error rta_context_create_aaudio(const rta_audio_context_config_t *contextCon
     config.sampleRate = contextConfig->sampleRate;
     config.dataCallback = _rta_data_callback;
     config.performanceProfile = ma_performance_profile_low_latency;
+    config.noClip = MA_TRUE;
+    config.noPreSilencedOutputBuffer = MA_TRUE;
     config.pUserData = context;
 
     rta_audio_callback_datasource_init(&context->dataSource);

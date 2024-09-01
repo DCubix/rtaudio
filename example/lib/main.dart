@@ -90,6 +90,7 @@ class _MyAppState extends State<MyApp> {
 
                       _audioContext?.dispose();
                       _audioContext = await rtaudio.RtAudio.createContext(acc, device);
+                      print(device.name);
                     },
                   ),
               ],

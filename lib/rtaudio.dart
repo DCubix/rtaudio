@@ -4,6 +4,7 @@ import 'dart:ffi' as ffi;
 import 'dart:io';
 import 'dart:typed_data'; // Import the 'typed_data' package
 import 'package:ffi/ffi.dart';
+import 'package:flutter/foundation.dart';
 import 'package:rtaudio/rtaudio_android.dart';
 import 'rtaudio_bindings_generated.dart';
 
@@ -92,13 +93,12 @@ class AudioContext {
 }
 
 class RtAudio {
-  static Future<List<AudioDevice>> getDevices() async {
+  static Future<List<AudioDevice>> _getDevicesCompute(void _) {
     // for android use Java implementation
     if (Platform.isAndroid) {
       return RtAudioAndroid.getDevices();
     }
 
-    final completer = Completer<List<AudioDevice>>();
     final devices = <AudioDevice>[];
     
     final deviceCount = using((arena) {
@@ -109,22 +109,25 @@ class RtAudio {
     
     ffi.Pointer<rta_audio_device_t> devicePtr = calloc<rta_audio_device_t>(deviceCount);
     if (_bindings.rta_get_devices(devicePtr) != rta_error.RTA_SUCCESS) {
-      completer.completeError('Failed to get devices');
+      return Future.error('Failed to get devices');
     } else {
       for (int i = 0; i < deviceCount; i++) {
         devices.add(AudioDevice._((devicePtr + i).ref));
       }
-      completer.complete(devices);
     }
     calloc.free(devicePtr);
 
-    return completer.future;
+    return Future.value(devices);
+  }
+
+  static Future<List<AudioDevice>> getDevices() async {
+    return compute(_getDevicesCompute, null);
   }
 
   static Future<AudioContext> createContext(AudioContextConfig config, AudioDevice device) async {
-    final completer = Completer<AudioContext>();
-
+    final context = calloc<rta_audio_context_t>();
     final conf = calloc<rta_audio_context_config_t>();
+
     conf.ref.sampleRate = config.sampleRate;
     conf.ref.channels = config.numChannels;
 
@@ -135,30 +138,59 @@ class RtAudio {
 
     conf.ref.dataCallback = ffi.NativeCallable<_NativeAudioCallbackSignature>.listener(fn).nativeFunction;
 
-    final context = calloc<rta_audio_context_t>();
-    
     if (device._fromAndroid && Platform.isAndroid) {
-      if (_bindings.rta_context_create_aaudio(conf, device.id, context) != rta_error.RTA_SUCCESS) {
-        completer.completeError('Failed to create audio context');
-        return completer.future;
+      rta_error res = await compute(_contextCreateAaudio, {
+        'conf': conf,
+        'id': device.id,
+        'context': context,
+      });
+      if (res != rta_error.RTA_SUCCESS) {
+        return Future.error('Failed to create context');
       }
     } else {
       final devPtr = calloc<rta_audio_device_t>();
-      if (_bindings.rta_get_device(device.id, devPtr) != rta_error.RTA_SUCCESS) {
+
+      rta_error res = await compute(_getDevice, {
+        'id': device.id,
+        'devPtr': devPtr,
+      });
+      if (res != rta_error.RTA_SUCCESS) {
         calloc.free(devPtr);
-        completer.completeError('Failed to get device info');
-        return completer.future;
+        return Future.error('Failed to get device');
       }
 
-      if (_bindings.rta_context_create(conf, devPtr, context) != rta_error.RTA_SUCCESS) {
+      res = await compute(_contextCreate, {
+        'conf': conf,
+        'devPtr': devPtr,
+        'context': context,
+      });
+      if (res != rta_error.RTA_SUCCESS) {
         calloc.free(devPtr);
-        completer.completeError('Failed to create audio context');
-        return completer.future;
+        return Future.error('Failed to create context');
       }
     }
-    
-    completer.complete(AudioContext._(context));
 
-    return completer.future;
+    return AudioContext._(context);
   }
+
+  static Future<rta_error> _getDevice(Map<String, dynamic> args) {
+    final id = args['id'] as int;
+    final devPtr = args['devPtr'] as ffi.Pointer<rta_audio_device_t>;
+    return Future.value(_bindings.rta_get_device(id, devPtr));
+  }
+
+  static Future<rta_error> _contextCreate(Map<String, dynamic> args) {
+    final conf = args['conf'] as ffi.Pointer<rta_audio_context_config_t>;
+    final devPtr = args['devPtr'] as ffi.Pointer<rta_audio_device_t>;
+    final context = args['context'] as ffi.Pointer<rta_audio_context_t>;
+    return Future.value(_bindings.rta_context_create(conf, devPtr, context));
+  }
+
+  static Future<rta_error> _contextCreateAaudio(Map<String, dynamic> args) {
+    final conf = args['conf'] as ffi.Pointer<rta_audio_context_config_t>;
+    final id = args['id'] as int;
+    final context = args['context'] as ffi.Pointer<rta_audio_context_t>;
+    return Future.value(_bindings.rta_context_create_aaudio(conf, id, context));
+  }
+
 }
